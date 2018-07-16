@@ -1,0 +1,19 @@
+*{
+  margin: 0;
+  padding: 0;
+}
+main{
+  text-align: center;
+}
+main .row{
+  vertical-align: top;
+}
+
+main .row .keyboard{
+  border: 1px solid red;
+  display: inline-block;
+  width: 70px;
+  height: 50px;
+  text-align: center;
+  line-height: 50px;
+}

@@ -7,46 +7,123 @@
 </head>
 <body>
   <header></header>
-  <main id="main"></main>
+  <main>
+    <div id="main"></div>
+  </main>
   <footer></footer>
   <script>
     //1、初始化数据
-    var keys = {
-      "0":["q","w","e","r","t","y","u","i","o","p"],
-      "1":["a","s","d","f","g","h","j","k","l",],
-      "2":["z","x","c","v","b","n","m"],
-      "length":3
-    };
-    var hash = {
-      "q":"qq.com",
-      "w":"weibo.com",
-      "b":"bilibili.com",
-      "a":"acfun.cn",
-      "k":"kirikiri.tv"
+    var hashA = init();
+    var keys = hashA['keys'];
+    var hash = hashA['hash'];
+    
+    //2、遍历数据，生成键盘
+    generateKeyboard(keys, hash);
+    
+    //3、监听用户对键盘的操作
+    watchUser(hash);
+    
+
+    //以下是工具函数
+    function getlocalStorage(name) {
+      return JSON.parse(localStorage.getItem(name) || 'null');
     }
 
-    //2、遍历数据，生成键盘
-    for(var i = 0;i < keys.length;i++){
-      var div=document.createElement('div');
-      div.className = "row";
-      var main = document.getElementById("main")
-      main.appendChild(div);
-      for(var j = 0;j < keys[i].length;j++){
-        var kbd = document.createElement("kbd");
-        kbd.className = "keyboard";
-        kbd.textContent = keys[i][j];
-        div.appendChild(kbd);
+    function setlocalStorage(name) {
+      return localStorage.setItem(name, JSON.stringify(hash));
+    }
 
-        //添加编辑hash按钮
-        
+    function createTag(tagName, attributes) {
+      var element = document.createElement(tagName);
+      for (var key in attributes) {
+        element[key] = attributes[key];
+      }
+      return element;
+    }
+
+    function createImgicon(link) {
+      var img = createTag('img');
+      if (link) {
+        img.src = 'http://' + link + '/favicon.ico';
+      } else {
+        img.src = '网页图标.png';
+      };
+      img.onerror = function (error) {
+        error.target.src = '网页.png';
+      }
+      return img;
+    }
+
+    function createbutton(id) {
+      var button = createTag('button', { 'className': 'btn', 'id': id, 'textContent': '编辑' });
+      button.onclick = function (action) {
+        var key = action.target;
+        var img2 = key.nextSibling;
+        var newsite = prompt('输入一个网址');
+        hash[key.id] = newsite;//hash变更
+        img2.src = 'http://' + newsite + '/favicon.ico';
+        img2.onerror = function (error) {
+          error.target.src = '网页.png';
+        };
+        setlocalStorage('hash2');
+      };
+      return button;
+    }
+
+    function watchUser(hash) {
+      document.onkeypress = function (kbd) {
+        var key = kbd.key;//得到按键
+        var website = hash[key];
+        if (website) {
+          window.open('http://' + website, '_blank');
+        }
       }
     }
 
-    //3、监听用户对键盘的操作
-    document.onkeypress = function (action) {
-      var key = action.key;//得到按键
-      var website = hash[key];
-      window.open('http://' + website, '_blank');
+    function generateKeyboard(keys, hash) {
+      for (var i = 0; i < keys.length; i++) {
+        var div = createTag('div', { 'className': 'row' });
+        main.appendChild(div);
+
+        for (var j = 0; j < keys[i].length; j++) {
+          var kbd = createTag('kbd', { 'className': 'keyboard', 'textContent': keys[i][j] });
+
+          var button = createbutton(keys[i][j]);
+
+          var img = createImgicon(hash[keys[i][j]]);
+
+          div.appendChild(kbd);
+
+          kbd.appendChild(button);
+
+          kbd.appendChild(img);
+        }
+      }
+    }
+
+    function init() {
+      var keys = {
+        "0": ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"],
+        "1": ["a", "s", "d", "f", "g", "h", "j", "k", "l",],
+        "2": ["z", "x", "c", "v", "b", "n", "m"],
+        "length": 3
+      };
+      var hash = {
+        "q": "qq.com",
+        "w": "weibo.com",
+        "b": "bilibili.com",
+        "a": "acfun.cn",
+        "k": "kirikiri.tv",
+        "j": "jirengu.com"
+      };
+      var hashLocalStorage = getlocalStorage('hash2');
+      if (hashLocalStorage) {
+        hash = hashLocalStorage;
+      }
+      return {
+        'keys': keys,
+        'hash': hash
+      };
     }
   </script>
 </body>
